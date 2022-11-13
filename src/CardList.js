@@ -1,9 +1,17 @@
 import Card from './Card';
 
-const CardList = () => {
+const CardList = ({ robots }) => {
   return (
     <div>
-      <Card />
+      {robots.map((robot) => (
+        <Card
+          key={robot.id}
+          id={robot.id}
+          firstname={robot.firstname}
+          lastname={robot.lastname}
+          email={robot.email}
+        />
+      ))}
     </div>
   );
 };

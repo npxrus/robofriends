@@ -10,9 +10,15 @@ class App extends React.Component {
     super();
 
     this.state = {
-      robots,
+      robots: [],
       searchField: '',
     };
+  }
+
+  componentDidMount() {
+    fetch('https://fakerapi.it/api/v1/persons?_quantity=20')
+      .then((res) => res.json())
+      .then((users) => this.setState({ robots: users.data }));
   }
 
   onSearchChange = (event) => {
@@ -21,16 +27,22 @@ class App extends React.Component {
 
   render() {
     const filteredRobots = this.state.robots.filter((robot) =>
-      robot.name.toLowerCase().includes(this.state.searchField.toLowerCase())
+      robot.firstname
+        .toLowerCase()
+        .includes(this.state.searchField.toLowerCase())
     );
 
-    return (
-      <div className='tc'>
-        <h1 className='f1'>RoboFriends</h1>
-        <SearchBox searchChange={this.onSearchChange} />
-        <CardList robots={filteredRobots} />
-      </div>
-    );
+    if (!this.state.robots.length) {
+      return <h1 className='tc'>Loading...</h1>;
+    } else {
+      return (
+        <div className='tc'>
+          <h1 className='f1'>RoboFriends</h1>
+          <SearchBox searchChange={this.onSearchChange} />
+          <CardList robots={filteredRobots} />
+        </div>
+      );
+    }
   }
 }
 
