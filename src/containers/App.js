@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 
 import CardList from '../components/CardList';
 import SearchBox from '../components/SearchBox';
@@ -7,49 +7,39 @@ import './App.css';
 import Scroll from '../components/Scroll';
 import ErrorBoundary from '../components/ErrorBoundary';
 
-class App extends React.Component {
-  constructor() {
-    super();
+const App = () => {
+  const [robots, setRobots] = useState([]);
+  const [searchField, setSearchField] = useState('');
 
-    this.state = {
-      robots: [],
-      searchField: '',
-    };
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     fetch('https://fakerapi.it/api/v1/persons?_quantity=20')
       .then((res) => res.json())
-      .then((users) => this.setState({ robots: users.data }));
-  }
+      .then((users) => setRobots([...users.data]));
+  }, []);
 
-  onSearchChange = (event) => {
-    this.setState({ searchField: event.target.value });
+  const onSearchChange = (event) => {
+    setSearchField(event.target.value);
   };
 
-  render() {
-    const filteredRobots = this.state.robots.filter((robot) =>
-      robot.firstname
-        .toLowerCase()
-        .includes(this.state.searchField.toLowerCase())
-    );
+  const filteredRobots = robots.filter((robot) =>
+    robot.firstname.toLowerCase().includes(searchField.toLowerCase())
+  );
 
-    if (!this.state.robots.length) {
-      return <h1 className='tc'>Loading...</h1>;
-    } else {
-      return (
-        <div className='tc'>
-          <h1 className='f1'>RoboFriends</h1>
-          <SearchBox searchChange={this.onSearchChange} />
-          <Scroll>
-            <ErrorBoundary>
-              <CardList robots={filteredRobots} />
-            </ErrorBoundary>
-          </Scroll>
-        </div>
-      );
-    }
+  if (!robots.length) {
+    return <h1 className='tc'>Loading...</h1>;
+  } else {
+    return (
+      <div className='tc'>
+        <h1 className='f1'>RoboFriends</h1>
+        <SearchBox searchChange={onSearchChange} />
+        <Scroll>
+          <ErrorBoundary>
+            <CardList robots={filteredRobots} />
+          </ErrorBoundary>
+        </Scroll>
+      </div>
+    );
   }
-}
+};
 
 export default App;
