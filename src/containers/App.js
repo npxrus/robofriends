@@ -6,32 +6,32 @@ import SearchBox from '../components/SearchBox';
 import Scroll from '../components/Scroll';
 import ErrorBoundary from '../components/ErrorBoundary';
 
-import { setSearchField } from '../actions';
+import { setSearchField, requestRobots } from '../actions';
 
 import './App.css';
 
 const mapStateToProps = (state) => ({
-  searchField: state.searchField,
+  searchField: state.searchRobots.searchField,
+  isPending: state.searchRobots.isPending,
+  robots: state.requestRobots.robots,
+  error: state.requestRobots.error,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   onSearchChange: (event) => dispatch(setSearchField(event.target.value)),
+  onRequestRobots: () => dispatch(requestRobots()),
 });
 
 const App = (props) => {
-  const [robots, setRobots] = useState([]);
-
   useEffect(() => {
-    fetch('https://fakerapi.it/api/v1/persons?_quantity=20')
-      .then((res) => res.json())
-      .then((users) => setRobots([...users.data]));
+    props.onRequestRobots();
   }, []);
 
-  const filteredRobots = robots.filter((robot) =>
+  const filteredRobots = props.robots.filter((robot) =>
     robot.firstname.toLowerCase().includes(props.searchField.toLowerCase())
   );
 
-  if (!robots.length) {
+  if (props.isPending) {
     return <h1 className='tc'>Loading...</h1>;
   } else {
     return (
