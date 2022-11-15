@@ -1,15 +1,25 @@
 import { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 
 import CardList from '../components/CardList';
 import SearchBox from '../components/SearchBox';
-
-import './App.css';
 import Scroll from '../components/Scroll';
 import ErrorBoundary from '../components/ErrorBoundary';
 
-const App = () => {
+import { setSearchField } from '../actions';
+
+import './App.css';
+
+const mapStateToProps = (state) => ({
+  searchField: state.searchField,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  onSearchChange: (event) => dispatch(setSearchField(event.target.value)),
+});
+
+const App = (props) => {
   const [robots, setRobots] = useState([]);
-  const [searchField, setSearchField] = useState('');
 
   useEffect(() => {
     fetch('https://fakerapi.it/api/v1/persons?_quantity=20')
@@ -17,12 +27,8 @@ const App = () => {
       .then((users) => setRobots([...users.data]));
   }, []);
 
-  const onSearchChange = (event) => {
-    setSearchField(event.target.value);
-  };
-
   const filteredRobots = robots.filter((robot) =>
-    robot.firstname.toLowerCase().includes(searchField.toLowerCase())
+    robot.firstname.toLowerCase().includes(props.searchField.toLowerCase())
   );
 
   if (!robots.length) {
@@ -31,7 +37,7 @@ const App = () => {
     return (
       <div className='tc'>
         <h1 className='f1'>RoboFriends</h1>
-        <SearchBox searchChange={onSearchChange} />
+        <SearchBox searchChange={props.onSearchChange} />
         <Scroll>
           <ErrorBoundary>
             <CardList robots={filteredRobots} />
@@ -42,4 +48,4 @@ const App = () => {
   }
 };
 
-export default App;
+export default connect(mapStateToProps, mapDispatchToProps)(App);
